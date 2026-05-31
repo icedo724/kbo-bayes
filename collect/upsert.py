@@ -13,6 +13,7 @@ ON_CONFLICT = {
     "games": "game_id",
     "team_standings_daily": "team,game_date",
     "predictions": "pred_date,target_type,target_id,model_version",
+    "players": "player_id",
 }
 
 

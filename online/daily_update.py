@@ -16,9 +16,8 @@ import os
 
 import yaml
 
-from collect.fetch import fetch_hitter_basic, fetch_team_standings
+from collect.fetch import fetch_team_standings
 from collect.upsert import ON_CONFLICT, get_client
-from model import fit
 from model.prior import BetaPrior
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config", "model_config.yaml")
@@ -47,25 +46,6 @@ def _i(v):
     return int(v)
 
 
-def upsert_batter_daily(client, hitters, game_date: str):
-    rows = []
-    for _, r in hitters.iterrows():
-        if "player_id" not in r or not r["player_id"]:
-            continue
-        rows.append({
-            "player_id": str(r["player_id"]),
-            "game_date": game_date,
-            "team": r.get("team"),
-            "cum_pa": _i(r.get("PA", 0)),
-            "cum_ab": _i(r.get("AB", 0)),
-            "cum_h": _i(r.get("H", 0)),
-            "cum_hr": _i(r.get("HR", 0)),
-        })
-    if rows:
-        client.table("batter_daily").upsert(rows, on_conflict=ON_CONFLICT["batter_daily"]).execute()
-    return len(rows)
-
-
 def upsert_standings(client, standings, game_date: str):
     rows = []
     for _, r in standings.iterrows():
@@ -83,33 +63,10 @@ def upsert_standings(client, standings, game_date: str):
     return len(rows)
 
 
-def store_predictions(client, hitters, game_date: str, cfg: dict):
-    """동결 prior로 타자별 사후 타율 산출 → predictions upsert."""
-    pri = load_frozen_prior(cfg)
-    ci = cfg["batter_model"]["credible_interval"]
-    version = cfg["model_version"]
-
-    h = hitters[hitters["player_id"].astype(bool)].copy()
-    est = fit.estimate(pri, h["H"].values, h["AB"].values, ci=ci)
-    est["player_id"] = h["player_id"].values
-
-    rows = []
-    for _, r in est.iterrows():
-        rows.append({
-            "pred_date": game_date,
-            "target_type": "batter_avg",
-            "target_id": str(r["player_id"]),
-            "point_est": round(float(r["post_mean"]), 5),
-            "ci_low": round(float(r["ci_low"]), 5),
-            "ci_high": round(float(r["ci_high"]), 5),
-            "model_version": version,
-        })
-    if rows:
-        client.table("predictions").upsert(rows, on_conflict=ON_CONFLICT["predictions"]).execute()
-    return len(rows)
-
-
 def daily_update(game_date: str | None = None, season: int | None = None):
+    """전체 로스터 일별누적+예측을 갱신(게임로그 기반, 멱등)하고 당일 팀순위를 적재한다."""
+    from online.backfill import backfill_batters  # 지연 import로 순환참조 회피
+
     cfg = load_frozen_config()
     today = dt.date.today()
     game_date = game_date or today.isoformat()
@@ -120,18 +77,16 @@ def daily_update(game_date: str | None = None, season: int | None = None):
 
     client = get_client()
 
-    hitters = fetch_hitter_basic(season)
-    n_bat = upsert_batter_daily(client, hitters, game_date)
-    print(f"  batter_daily upsert: {n_bat}행")
+    # 타자: 전체 로스터 일별누적 + 동결 prior 예측 (게임일자 기준, 멱등 upsert)
+    res = backfill_batters(season, client)
 
+    # 팀 순위: 당일 스냅샷
     standings = fetch_team_standings(game_date)
     n_std = upsert_standings(client, standings, game_date)
     print(f"  team_standings_daily upsert: {n_std}행")
 
-    n_pred = store_predictions(client, hitters, game_date, cfg)
-    print(f"  predictions upsert: {n_pred}행")
     print("[online] 완료.")
-    return {"batter_daily": n_bat, "standings": n_std, "predictions": n_pred}
+    return {**res, "standings": n_std}
 
 
 if __name__ == "__main__":

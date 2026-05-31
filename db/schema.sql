@@ -39,11 +39,20 @@ create table if not exists predictions (
   primary key (pred_date, target_type, target_id, model_version)
 );
 
+-- 선수 참조(이름 표시용). target_id/player_id ↔ name 매핑.
+create table if not exists players (
+  player_id text primary key,
+  name      text,
+  team      text,
+  pos       text
+);
+
 -- RLS: 기본 ON. 대시보드(anon)가 읽는 테이블만 SELECT 정책 추가. 쓰기는 service_role 전용.
 alter table predictions          enable row level security;
 alter table team_standings_daily enable row level security;
 alter table batter_daily         enable row level security;
 alter table games                enable row level security;
+alter table players              enable row level security;
 
 create policy "anon read predictions"
   on predictions for select to anon using (true);
@@ -53,4 +62,6 @@ create policy "anon read batter_daily"
   on batter_daily for select to anon using (true);
 create policy "anon read games"
   on games for select to anon using (true);
+create policy "anon read players"
+  on players for select to anon using (true);
 -- service_role은 RLS를 우회하므로 쓰기 정책 불필요.
