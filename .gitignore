@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+# 비밀/자격증명 (절대 커밋 금지)
+supabase/pw.txt
+*password*
+*secret*
+*.key
+offline/results/
+offline/data/
+*.png
+.DS_Store

@@ -1,0 +1,18 @@
+# core
+numpy
+scipy
+pandas
+pyyaml
+
+# collection — KBO 공식(koreabaseball.com). STATIZ는 robots 차단으로 제외. Selenium 금지.
+requests
+lxml            # pandas.read_html 기본 백엔드
+html5lib        # KBO postback 응답 파싱(POST HTML이 lxml엔 깨져 폴백됨)
+beautifulsoup4  # read_html bs4 폴백
+
+# db
+supabase        # Postgres (service_role=쓰기, anon=읽기)
+python-dotenv   # 로컬 .env 로드
+
+# offline 시각화 (calibration plot)
+matplotlib
