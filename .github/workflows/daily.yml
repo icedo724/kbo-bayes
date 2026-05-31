@@ -1,5 +1,5 @@
-# 매일 자동 실행 (명세 7) — 🟡 스켈레톤. 데이터 I/O 구현(2-1/Supabase) 후 활성화.
-# cron 0 20 * * * = UTC 20시 = KST 새벽 5시.
+# 매일 KBO 데이터 수집 → 사후갱신 → Supabase 적재.
+# cron "0 20 * * *" = UTC 20시 = KST 새벽 5시 (전날 경기 종료 후).
 name: daily-update
 
 on:
@@ -7,15 +7,23 @@ on:
     - cron: "0 20 * * *"
   workflow_dispatch: {}   # 수동 실행 허용
 
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements.txt
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: daily bayesian update
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
