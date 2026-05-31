@@ -104,6 +104,35 @@ export async function getTrajectory(playerId) {
     .filter(Boolean);
 }
 
+/** 가장 최근 진출 확률 (몬테카를로) */
+export async function getPlayoffProbs() {
+  const latest = must(
+    await supabase
+      .from("predictions")
+      .select("pred_date")
+      .eq("target_type", "playoff_prob")
+      .order("pred_date", { ascending: false })
+      .limit(1)
+  );
+  const date = latest?.[0]?.pred_date;
+  if (!date) return { date: null, rows: [] };
+  const rows = must(
+    await supabase
+      .from("predictions")
+      .select("target_id, point_est, ci_low, ci_high")
+      .eq("target_type", "playoff_prob")
+      .eq("pred_date", date)
+  );
+  const mapped = rows.map((r) => ({
+    team: r.target_id,
+    prob: Number(r.point_est),
+    low: Number(r.ci_low),
+    high: Number(r.ci_high),
+  }));
+  mapped.sort((a, b) => b.prob - a.prob);
+  return { date, rows: mapped };
+}
+
 /** 가장 최근 팀 순위 */
 export async function getStandings() {
   const latest = must(

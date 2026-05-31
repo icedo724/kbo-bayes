@@ -3,10 +3,12 @@
 > 베이지안 shrinkage로 KBO 타율의 평균회귀를 보정하고 매일 자동 갱신하는 추론 파이프라인
 > (Beta-Binomial · GitHub Actions · Supabase)
 
+**Live demo:** https://kbo-bayes.vercel.app
+
 KBO 데이터를 매일 자동 수집해 두 개의 베이지안 모델을 운영한다.
 
-1. **타자 실력 추정** — 시즌 초 관측 타율의 regression to the mean을 Beta-Binomial 켤레 모델의 shrinkage로 보정한다. (구현 완료)
-2. **가을야구 진출 확률** — 잔여 경기 몬테카를로 시뮬레이션으로 포스트시즌 진출 확률을 매일 갱신한다. (예정)
+1. **타자 실력 추정** — 시즌 초 관측 타율의 regression to the mean을 Beta-Binomial 켤레 모델의 shrinkage로 보정한다.
+2. **가을야구 진출 확률** — 팀 승률을 Beta-Binomial로 보정하고 잔여 경기를 몬테카를로로 시뮬레이션해 포스트시즌(5위 이내) 진출 확률을 매일 갱신한다.
 
 ---
 
@@ -64,11 +66,13 @@ kbo-bayes/
 ├─ model/          # 베이지안 핵심 (닫힌형)
 │   ├─ snapshot.py     # 시점별 누적 잘라내기 (look-ahead 차단)
 │   ├─ prior.py        # empirical Bayes prior (mom / mle)
-│   └─ fit.py          # Beta-Binomial 사후분포
+│   ├─ fit.py          # Beta-Binomial 사후분포 (타자)
+│   └─ playoff.py      # 진출확률 몬테카를로 (팀 승률 shrinkage)
 ├─ offline/        # 1회성: 검증 → 동결
 │   ├─ simulate.py            # 검증용 합성 시즌
 │   ├─ load_kbo.py            # 실데이터 → batter_daily 로더(+캐시)
-│   ├─ backtest_walkforward.py# walk-forward 검증 + 베이스라인 비교
+│   ├─ backtest_walkforward.py# 타자 모델 walk-forward 검증
+│   ├─ backtest_playoff.py    # 진출확률 walk-forward 검증
 │   └─ freeze_model.py        # 검증 통과 prior를 config로 동결
 ├─ online/         # 매일 실행
 │   ├─ daily_update.py        # cron 진입점: 수집→upsert→사후갱신→저장
@@ -105,7 +109,7 @@ python -m online.daily_update   # 당일 갱신 (cron이 매일 실행)
 
 - `daily_update`는 가벼운 규정타석 경로(HitterBasic)로 매일 갱신하고, 전체 로스터(152명)는 백필/prior 동결에 사용한다. 매일 전체 로스터가 필요하면 게임로그 경로로 교체할 수 있다(요청량 증가).
 - 로스터 페이지는 현재 활성 등록 선수 기준이라, 시즌 중 말소된 선수의 초반 기록은 빠질 수 있다.
-- 가을야구 진출 확률 모델(몬테카를로)과 결과 시각화 대시보드는 예정.
+- 진출확률 모델은 팀별 독립 베르누이로 잔여 경기를 시뮬레이션한다(상대 전적·잔여 일정 미반영). 순위는 상대 비교라 근사다.
 
 ## 기술 스택
 

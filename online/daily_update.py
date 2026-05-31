@@ -46,6 +46,26 @@ def _i(v):
     return int(v)
 
 
+def store_playoff(client, standings_rows, game_date: str):
+    """현재 순위로 진출확률 몬테카를로 → predictions(target_type='playoff_prob') 적재."""
+    from model import playoff
+
+    sims = playoff.simulate(standings_rows)
+    rows = [{
+        "pred_date": game_date,
+        "target_type": "playoff_prob",
+        "target_id": r["team"],
+        "point_est": round(r["playoff_prob"], 5),
+        "ci_low": round(r["proj_pct_low"], 5),
+        "ci_high": round(r["proj_pct_high"], 5),
+        "model_version": playoff.MODEL_VERSION,
+    } for r in sims]
+    if rows:
+        client.table("predictions").upsert(
+            rows, on_conflict=ON_CONFLICT["predictions"]).execute()
+    return len(rows)
+
+
 def upsert_standings(client, standings, game_date: str):
     rows = []
     for _, r in standings.iterrows():
@@ -85,8 +105,15 @@ def daily_update(game_date: str | None = None, season: int | None = None):
     n_std = upsert_standings(client, standings, game_date)
     print(f"  team_standings_daily upsert: {n_std}행")
 
+    # 진출 확률: 당일 순위로 몬테카를로
+    std_rows = [{"team": r["team"], "wins": int(r["wins"]),
+                 "games_played": int(r["games_played"])}
+                for _, r in standings.iterrows()]
+    n_po = store_playoff(client, std_rows, game_date)
+    print(f"  playoff_prob upsert: {n_po}행")
+
     print("[online] 완료.")
-    return {**res, "standings": n_std}
+    return {**res, "standings": n_std, "playoff": n_po}
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { PALETTE } from "@/lib/colors";
 
 const fmt = (v, d = 3) => (v == null ? "-" : Number(v).toFixed(d));
 
@@ -14,7 +15,7 @@ const COLS = [
   { key: "shrink", label: "보정" },
 ];
 
-export default function EstimatesTable({ rows, activeId, onSelect }) {
+export default function EstimatesTable({ rows, selectedIds, onToggle }) {
   const [sort, setSort] = useState({ key: "ab", dir: "desc" });
 
   const sorted = useMemo(() => {
@@ -45,6 +46,7 @@ export default function EstimatesTable({ rows, activeId, onSelect }) {
       <table>
         <thead>
           <tr>
+            <th style={{ width: 18 }}></th>
             {COLS.map((c) => (
               <th key={c.key} className={c.l ? "l" : ""} onClick={() => toggle(c.key)}>
                 {c.label}
@@ -54,25 +56,33 @@ export default function EstimatesTable({ rows, activeId, onSelect }) {
           </tr>
         </thead>
         <tbody>
-          {sorted.map((r) => (
-            <tr
-              key={r.player_id}
-              className={r.player_id === activeId ? "active" : ""}
-              onClick={() => onSelect(r)}
-            >
-              <td className="l">{r.name}</td>
-              <td className="l muted">{r.team}</td>
-              <td>{r.ab}</td>
-              <td className="muted">{fmt(r.obs)}</td>
-              <td style={{ color: "#2f81f7", fontWeight: 600 }}>{fmt(r.est)}</td>
-              <td className="muted">
-                {fmt(r.ci_low)}–{fmt(r.ci_high)}
-              </td>
-              <td className={r.shrink > 0 ? "pos" : r.shrink < 0 ? "neg" : "muted"}>
-                {r.shrink == null ? "-" : (r.shrink > 0 ? "+" : "") + r.shrink.toFixed(3)}
-              </td>
-            </tr>
-          ))}
+          {sorted.map((r) => {
+            const idx = selectedIds.indexOf(r.player_id);
+            return (
+              <tr
+                key={r.player_id}
+                className={idx >= 0 ? "active" : ""}
+                onClick={() => onToggle(r)}
+              >
+                <td>
+                  {idx >= 0 ? (
+                    <span className="dot" style={{ background: PALETTE[idx % PALETTE.length] }} />
+                  ) : null}
+                </td>
+                <td className="l">{r.name}</td>
+                <td className="l muted">{r.team}</td>
+                <td>{r.ab}</td>
+                <td className="muted">{fmt(r.obs)}</td>
+                <td style={{ color: "#2f81f7", fontWeight: 600 }}>{fmt(r.est)}</td>
+                <td className="muted">
+                  {fmt(r.ci_low)}–{fmt(r.ci_high)}
+                </td>
+                <td className={r.shrink > 0 ? "pos" : r.shrink < 0 ? "neg" : "muted"}>
+                  {r.shrink == null ? "-" : (r.shrink > 0 ? "+" : "") + r.shrink.toFixed(3)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
