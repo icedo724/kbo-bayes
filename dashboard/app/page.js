@@ -87,8 +87,10 @@ export default function Home() {
                   </div>
                   <div className="tc-sub">
                     {t.wins}승 {t.losses}패
-                    {t.prob != null ? ` · 진출 ${(t.prob * 100).toFixed(0)}%` : ""}
                   </div>
+                  {t.prob != null && (
+                    <div className="tc-sub">진출 {(t.prob * 100).toFixed(0)}%</div>
+                  )}
                 </div>
               </Link>
             ))}
