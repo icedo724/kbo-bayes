@@ -12,7 +12,8 @@ import { emblemUrl, teamColor, teamName } from "@/lib/teams";
 import ShrinkageScatter from "@/components/ShrinkageScatter";
 import EstimatesTable from "@/components/EstimatesTable";
 
-const PRIOR_MEAN = 0.254;
+const PRIOR = { avg: 0.254, obp: 0.336 };
+const METRIC_LABEL = { avg: "타율", obp: "출루율" };
 
 export default function TeamPage({ params }) {
   const code = params.code;
@@ -53,18 +54,27 @@ export default function TeamPage({ params }) {
   }, [name]);
 
   const [compareIds, setCompareIds] = useState([]);
+  const [metric, setMetric] = useState("avg");
   const toggle = (r) =>
     setCompareIds((ids) =>
       ids.includes(r.player_id) ? ids.filter((x) => x !== r.player_id) : [...ids, r.player_id]
     );
 
+  const toMetric = (r) =>
+    metric === "obp"
+      ? { ...r, obs: r.obp_obs, est: r.obp_est, ci_low: r.obp_ci_low,
+          ci_high: r.obp_ci_high, shrink: r.obp_shrink }
+      : r;
+  const displayed = useMemo(() => rows.map(toMetric).filter((r) => r.est != null),
+    [rows, metric]);
+
   const topShrink = useMemo(
     () =>
-      [...rows]
+      [...displayed]
         .filter((r) => r.shrink != null)
         .sort((a, b) => Math.abs(b.shrink) - Math.abs(a.shrink))
         .slice(0, 3),
-    [rows]
+    [displayed]
   );
 
   if (loading)
@@ -119,12 +129,32 @@ export default function TeamPage({ params }) {
         </div>
       </div>
 
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 18 }}>
+        {["avg", "obp"].map((m) => (
+          <button
+            key={m}
+            className="ctrl"
+            onClick={() => setMetric(m)}
+            style={{
+              cursor: "pointer",
+              fontWeight: metric === m ? 700 : 400,
+              background: metric === m ? "var(--accent)" : "var(--bg)",
+              color: metric === m ? "#fff" : "var(--text)",
+              borderColor: metric === m ? "var(--accent)" : "var(--border)",
+            }}
+          >
+            {METRIC_LABEL[m]}
+          </button>
+        ))}
+        <span style={{ color: "var(--muted)", fontSize: 13 }}>지표 선택</span>
+      </div>
+
       <div className="panel">
-        <h2>{name} 타자 Shrinkage</h2>
+        <h2>{name} 타자 Shrinkage · {METRIC_LABEL[metric]}</h2>
         <p className="sub">
           대각선에서 파란 prior 선 쪽으로 당겨질수록 평균회귀 보정이 큽니다(저타석=빨강).
         </p>
-        <ShrinkageScatter rows={rows} priorMean={PRIOR_MEAN} />
+        <ShrinkageScatter rows={displayed} priorMean={PRIOR[metric]} metricLabel={METRIC_LABEL[metric]} />
       </div>
 
       <div className="panel">
@@ -153,9 +183,9 @@ export default function TeamPage({ params }) {
       </div>
 
       <div className="panel">
-        <h2>선수별 추정</h2>
+        <h2>선수별 추정 · {METRIC_LABEL[metric]}</h2>
         <p className="sub">이름 클릭=선수 상세. 헤더 클릭으로 정렬.</p>
-        <EstimatesTable rows={rows} selectedIds={compareIds} onToggle={toggle} />
+        <EstimatesTable rows={displayed} selectedIds={compareIds} onToggle={toggle} />
       </div>
     </div>
   );

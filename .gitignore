@@ -14,5 +14,7 @@ supabase/pw.txt
 *.key
 offline/results/
 offline/data/
+portfolio/charts/
+*.pptx
 *.png
 .DS_Store

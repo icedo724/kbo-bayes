@@ -36,7 +36,12 @@ def _prior_from_real(prior_season: int):
     daily = daily.sort_values("game_date")
     final = daily.groupby("player_id").tail(1)  # 선수별 시즌 최종 누적
     pri = prior.fit_prior_mom(final["cum_h"].values, final["cum_ab"].values, min_ab=30)
-    return pri, len(final), prior_season
+    obp_pri = None
+    if "cum_bb" in final.columns:
+        onbase = final["cum_h"] + final["cum_bb"] + final["cum_hbp"]
+        opp = final["cum_ab"] + final["cum_bb"] + final["cum_hbp"]
+        obp_pri = prior.fit_prior_mom(onbase.values, opp.values, min_ab=40)
+    return pri, len(final), prior_season, obp_pri
 
 
 def _prior_from_sim():
@@ -44,17 +49,17 @@ def _prior_from_sim():
     daily, _ = simulate_season()
     final = daily.sort_values("game_date").groupby("player_id").tail(1)
     pri = prior.fit_prior_mom(final["cum_h"].values, final["cum_ab"].values, min_ab=50)
-    return pri, len(final), None
+    return pri, len(final), None, None
 
 
 def freeze(use_sim: bool = False, prior_season: int = 2025):
     if use_sim:
-        pri, n, src = _prior_from_sim()
+        pri, n, src, obp_pri = _prior_from_sim()
         version = "batter-betabinom-mom-v0.1-SIM"
         note = "SIMULATION-derived prior(형식 시연용). 운영엔 실데이터 동결본 사용."
         source = "simulation"
     else:
-        pri, n, src = _prior_from_real(prior_season)
+        pri, n, src, obp_pri = _prior_from_real(prior_season)
         version = f"batter-betabinom-mom-{prior_season}roster-v1"
         note = (f"{prior_season} 시즌 종료 누적 {n}명으로 MoM 추정한 league prior. "
                 "MLE는 시즌초 퇴화로 미채택.")
@@ -76,9 +81,21 @@ def freeze(use_sim: bool = False, prior_season: int = 2025):
             "read_only": True,
             "must_not_modify": ["prior", "prior_method", "family",
                                 "credible_interval"],
-            "daily_inputs": ["cum_ab", "cum_h"],
+            "daily_inputs": ["cum_ab", "cum_h", "cum_bb", "cum_hbp"],
         },
     }
+
+    if obp_pri is not None:
+        config["batter_obp_model"] = {
+            "model_version": f"obp-betabinom-mom-{prior_season}roster-v1",
+            "family": "beta-binomial-conjugate",
+            "prior_method": "mom",
+            "prior_source": source,
+            "prior": obp_pri.as_dict(),
+            "credible_interval": 0.90,
+            "posterior_rule": ("Beta(alpha+onbase, beta+opp-onbase); "
+                               "onbase=H+BB+HBP, opp=AB+BB+HBP"),
+        }
 
     os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:

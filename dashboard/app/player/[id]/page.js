@@ -66,26 +66,46 @@ export default function PlayerPage({ params }) {
       </div>
 
       {cur ? (
-        <div className="metric-row" style={{ marginTop: 16 }}>
-          <div className="metric">
-            <div className="m-label">타석 AB</div>
-            <div className="m-value">{cur.ab}</div>
-          </div>
-          <div className="metric">
-            <div className="m-label">관측 타율</div>
-            <div className="m-value">{cur.obs?.toFixed(3) ?? "—"}</div>
-          </div>
-          <div className="metric">
-            <div className="m-label">베이지안 추정</div>
-            <div className="m-value" style={{ color: "#2f81f7" }}>{cur.est.toFixed(3)}</div>
-          </div>
-          <div className="metric">
-            <div className="m-label">90% 신뢰구간</div>
-            <div className="m-value" style={{ fontSize: 18 }}>
-              {cur.ci_low.toFixed(3)}–{cur.ci_high.toFixed(3)}
+        <>
+          <div className="metric-row" style={{ marginTop: 16 }}>
+            <div className="metric">
+              <div className="m-label">타석 AB</div>
+              <div className="m-value">{cur.ab}</div>
+            </div>
+            <div className="metric">
+              <div className="m-label">관측 타율</div>
+              <div className="m-value">{cur.obs?.toFixed(3) ?? "—"}</div>
+            </div>
+            <div className="metric">
+              <div className="m-label">베이지안 타율</div>
+              <div className="m-value" style={{ color: "#2f81f7" }}>{cur.est.toFixed(3)}</div>
+            </div>
+            <div className="metric">
+              <div className="m-label">타율 90% CI</div>
+              <div className="m-value" style={{ fontSize: 18 }}>
+                {cur.ci_low.toFixed(3)}–{cur.ci_high.toFixed(3)}
+              </div>
             </div>
           </div>
-        </div>
+          {cur.obp_est != null && (
+            <div className="metric-row" style={{ marginTop: 12 }}>
+              <div className="metric">
+                <div className="m-label">관측 출루율</div>
+                <div className="m-value">{cur.obp_obs?.toFixed(3) ?? "—"}</div>
+              </div>
+              <div className="metric">
+                <div className="m-label">베이지안 출루율</div>
+                <div className="m-value" style={{ color: "#1a7f37" }}>{cur.obp_est.toFixed(3)}</div>
+              </div>
+              <div className="metric">
+                <div className="m-label">출루율 90% CI</div>
+                <div className="m-value" style={{ fontSize: 18 }}>
+                  {cur.obp_ci_low.toFixed(3)}–{cur.obp_ci_high.toFixed(3)}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       ) : null}
 
       <div className="panel">

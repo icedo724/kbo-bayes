@@ -18,7 +18,8 @@ import FilterBar from "@/components/FilterBar";
 import PlayoffOdds from "@/components/PlayoffOdds";
 import Standings from "@/components/Standings";
 
-const PRIOR_MEAN = 0.254;
+const PRIOR = { avg: 0.254, obp: 0.336 };
+const METRIC_LABEL = { avg: "타율", obp: "출루율" };
 
 export default function LeaguePage() {
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,7 @@ export default function LeaguePage() {
   const [team, setTeam] = useState("");
   const [pos, setPos] = useState("");
   const [q, setQ] = useState("");
+  const [metric, setMetric] = useState("avg");
 
   const [compareIds, setCompareIds] = useState([]);
   const [trajById, setTrajById] = useState({});
@@ -91,6 +93,15 @@ export default function LeaguePage() {
     );
   }, [rows, team, pos, q]);
 
+  // 선택 지표(타율/출루율)를 공통 필드(obs/est/ci/shrink)로 매핑 → 기존 컴포넌트 재사용
+  const toMetric = (r) =>
+    metric === "obp"
+      ? { ...r, obs: r.obp_obs, est: r.obp_est, ci_low: r.obp_ci_low,
+          ci_high: r.obp_ci_high, shrink: r.obp_shrink }
+      : r;
+  const displayed = useMemo(() => filtered.map(toMetric).filter((r) => r.est != null),
+    [filtered, metric]);
+
   const toggleCompare = (r) =>
     setCompareIds((ids) => {
       if (ids.includes(r.player_id)) return ids.filter((x) => x !== r.player_id);
@@ -102,6 +113,7 @@ export default function LeaguePage() {
     () => compareIds.map((id) => ({ id, name: idToName[id] ?? id })),
     [compareIds, idToName]
   );
+  // 비교/궤적은 타율(AVG) 기준 고정 (시계열 데이터가 타율이므로)
   const compareRows = useMemo(
     () => compareIds.map((id) => rows.find((r) => r.player_id === id)).filter(Boolean),
     [compareIds, rows]
@@ -121,12 +133,12 @@ export default function LeaguePage() {
   }, [compareIds, trajById]);
 
   const stat = useMemo(() => {
-    const withObs = filtered.filter((r) => r.obs != null);
+    const withObs = displayed.filter((r) => r.obs != null && r.shrink != null);
     const low = withObs.filter((r) => r.ab < 50);
     const avgShrinkLow =
       low.length > 0 ? low.reduce((s, r) => s + Math.abs(r.shrink), 0) / low.length : 0;
-    return { n: filtered.length, low: low.length, avgShrinkLow };
-  }, [filtered]);
+    return { n: displayed.length, low: low.length, avgShrinkLow };
+  }, [displayed]);
 
   if (loading)
     return (
@@ -173,28 +185,50 @@ export default function LeaguePage() {
         setPos={setPos}
         q={q}
         setQ={setQ}
-        count={filtered.length}
+        count={displayed.length}
       />
 
-      <div className="panel">
-        <h2>Shrinkage 한눈에 보기</h2>
-        <p className="sub">
-          대각선(점선)은 보정이 없을 때의 위치(추정=관측). 점이 대각선에서 파란 prior 선 쪽으로
-          당겨질수록 보정이 크며, 타석이 적은(빨강) 선수일수록 강하게 수축됩니다. (필터 적용됨)
-        </p>
-        <ShrinkageScatter rows={filtered} priorMean={PRIOR_MEAN} />
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 16 }}>
+        {["avg", "obp"].map((m) => (
+          <button
+            key={m}
+            className="ctrl"
+            onClick={() => setMetric(m)}
+            style={{
+              cursor: "pointer",
+              fontWeight: metric === m ? 700 : 400,
+              background: metric === m ? "var(--accent)" : "var(--bg)",
+              color: metric === m ? "#fff" : "var(--text)",
+              borderColor: metric === m ? "var(--accent)" : "var(--border)",
+            }}
+          >
+            {METRIC_LABEL[m]}
+          </button>
+        ))}
+        <span style={{ color: "var(--muted)", fontSize: 13 }}>
+          지표 선택 — 출루율(OBP)은 볼넷·사구 포함, 득점과의 상관이 더 높다
+        </span>
       </div>
 
       <div className="panel">
-        <h2>선수별 추정</h2>
+        <h2>Shrinkage 한눈에 보기 · {METRIC_LABEL[metric]}</h2>
+        <p className="sub">
+          대각선(점선)은 보정이 없을 때의 위치(추정=관측). 점이 대각선에서 파란 prior 선 쪽으로
+          당겨질수록 보정이 크며, 타석이 적은(빨강) 선수일수록 강하게 수축됩니다.
+        </p>
+        <ShrinkageScatter rows={displayed} priorMean={PRIOR[metric]} metricLabel={METRIC_LABEL[metric]} />
+      </div>
+
+      <div className="panel">
+        <h2>선수별 추정 · {METRIC_LABEL[metric]}</h2>
         <p className="sub">
           이름 클릭=선수 상세, 행 클릭=비교 추가/제거(최대 {MAX_COMPARE}명). 헤더 클릭으로 정렬.
         </p>
-        <EstimatesTable rows={filtered} selectedIds={compareIds} onToggle={toggleCompare} />
+        <EstimatesTable rows={displayed} selectedIds={compareIds} onToggle={toggleCompare} />
       </div>
 
       <div className="panel">
-        <h2>{single ? "시즌 궤적" : "선수 비교"}</h2>
+        <h2>{single ? "시즌 궤적" : "선수 비교"} · 타율</h2>
         {single ? (
           <>
             <p className="sub">관측 타율 vs 베이지안 추정의 시간 변화와 90% 신뢰구간.</p>

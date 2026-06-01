@@ -239,7 +239,7 @@ def build_batter_daily(gamelog: pd.DataFrame, team: str | None = None) -> pd.Dat
     if gamelog.empty:
         return gamelog
     g = gamelog.sort_values("game_date").copy()
-    for c in ("PA", "AB", "H", "HR"):
+    for c in ("PA", "AB", "H", "HR", "BB", "HBP"):
         g[c] = pd.to_numeric(g.get(c, 0), errors="coerce").fillna(0).astype(int)
     out = pd.DataFrame({
         "player_id": g["player_id"].values,
@@ -249,6 +249,8 @@ def build_batter_daily(gamelog: pd.DataFrame, team: str | None = None) -> pd.Dat
         "cum_ab": g["AB"].cumsum().values,
         "cum_h": g["H"].cumsum().values,
         "cum_hr": g["HR"].cumsum().values,
+        "cum_bb": g["BB"].cumsum().values,    # OBP 계산용
+        "cum_hbp": g["HBP"].cumsum().values,
     })
     return out
 

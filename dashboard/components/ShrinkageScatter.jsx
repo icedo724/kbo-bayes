@@ -32,8 +32,8 @@ function Dot({ active, payload }) {
         {d.name} <span style={{ color: "#6b7280" }}>({d.team})</span>
       </div>
       <div>타석 AB: {d.ab}</div>
-      <div>관측 타율: {fmt(d.obs)}</div>
-      <div style={{ color: "#2f81f7" }}>베이지안 추정: {fmt(d.est)}</div>
+      <div>관측: {fmt(d.obs)}</div>
+      <div style={{ color: "#2f81f7" }}>베이지안: {fmt(d.est)}</div>
     </div>
   );
 }
@@ -45,7 +45,7 @@ function color(ab) {
   return "#3fb950";
 }
 
-export default function ShrinkageScatter({ rows, priorMean }) {
+export default function ShrinkageScatter({ rows, priorMean, metricLabel = "타율" }) {
   const data = rows.filter((r) => r.obs != null);
   return (
     <div style={{ width: "100%", height: 420 }}>
@@ -55,10 +55,10 @@ export default function ShrinkageScatter({ rows, priorMean }) {
           <XAxis
             type="number"
             dataKey="obs"
-            name="관측 타율"
+            name={`관측 ${metricLabel}`}
             domain={[0, 0.5]}
             tick={{ fill: "#6b7280", fontSize: 12 }}
-            label={{ value: "관측 타율 (raw)", position: "bottom", fill: "#6b7280", offset: 10 }}
+            label={{ value: `관측 ${metricLabel} (raw)`, position: "bottom", fill: "#6b7280", offset: 10 }}
           />
           <YAxis
             type="number"

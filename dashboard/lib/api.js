@@ -19,27 +19,30 @@ export async function getLatestBatterDate() {
   return data?.[0]?.game_date ?? null;
 }
 
-/** 특정 날짜의 리그 타자 추정 스냅샷 (predictions × batter_daily × players 조인) */
+/** 특정 날짜의 리그 타자 추정 스냅샷 (AVG + OBP). predictions × batter_daily × players 조인 */
 export async function getEstimates(date) {
-  const [preds, daily, players] = await Promise.all([
+  const [predsAvg, predsObp, daily, players] = await Promise.all([
     supabase
       .from("predictions")
       .select("target_id, point_est, ci_low, ci_high, model_version")
       .eq("pred_date", date)
       .eq("target_type", "batter_avg"),
     supabase
+      .from("predictions")
+      .select("target_id, point_est, ci_low, ci_high")
+      .eq("pred_date", date)
+      .eq("target_type", "batter_obp"),
+    supabase
       .from("batter_daily")
-      .select("player_id, cum_ab, cum_h, team")
+      .select("player_id, cum_ab, cum_h, cum_bb, cum_hbp, team")
       .eq("game_date", date),
     supabase.from("players").select("player_id, name, team, pos"),
   ]);
 
-  const predRows = must(preds);
-  const dailyRows = must(daily);
-  const playerRows = must(players);
-
-  const dailyById = new Map(dailyRows.map((r) => [r.player_id, r]));
-  const playerById = new Map(playerRows.map((r) => [r.player_id, r]));
+  const predRows = must(predsAvg);
+  const obpById = new Map(must(predsObp).map((r) => [r.target_id, r]));
+  const dailyById = new Map(must(daily).map((r) => [r.player_id, r]));
+  const playerById = new Map(must(players).map((r) => [r.player_id, r]));
 
   const rows = predRows
     .map((p) => {
@@ -47,6 +50,10 @@ export async function getEstimates(date) {
       const pl = playerById.get(p.target_id);
       if (!d) return null;
       const obs = safeAvg(d.cum_h, d.cum_ab);
+      const onbase = d.cum_h + (d.cum_bb || 0) + (d.cum_hbp || 0);
+      const opp = d.cum_ab + (d.cum_bb || 0) + (d.cum_hbp || 0);
+      const obpObs = safeAvg(onbase, opp);
+      const o = obpById.get(p.target_id);
       return {
         player_id: p.target_id,
         name: pl?.name ?? p.target_id,
@@ -59,6 +66,12 @@ export async function getEstimates(date) {
         ci_low: Number(p.ci_low),
         ci_high: Number(p.ci_high),
         shrink: obs == null ? null : Number(p.point_est) - obs,
+        // OBP
+        obp_obs: obpObs,
+        obp_est: o ? Number(o.point_est) : null,
+        obp_ci_low: o ? Number(o.ci_low) : null,
+        obp_ci_high: o ? Number(o.ci_high) : null,
+        obp_shrink: o && obpObs != null ? Number(o.point_est) - obpObs : null,
       };
     })
     .filter(Boolean);

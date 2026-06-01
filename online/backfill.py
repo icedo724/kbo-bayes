@@ -36,6 +36,8 @@ def backfill_batters(season: int, client=None):
     """게임로그 기반 일별 누적(batter_daily) + 동결 prior 소급 예측(predictions) 백필."""
     from offline.load_kbo import build_season_daily
 
+    from model.prior import BetaPrior
+
     client = client or get_client()
     cfg = load_frozen_config()
     pri = load_frozen_prior(cfg)
@@ -45,29 +47,42 @@ def backfill_batters(season: int, client=None):
     daily = build_season_daily(season, source="roster")
     daily = daily.copy()
     daily["player_id"] = daily["player_id"].astype(str)
+    has_obp = "cum_bb" in daily.columns and "batter_obp_model" in cfg
     print(f"[backfill] season={season}: {len(daily)}행 / "
           f"{daily['player_id'].nunique()}명 / "
-          f"{daily['game_date'].min()}~{daily['game_date'].max()}")
+          f"{daily['game_date'].min()}~{daily['game_date'].max()} | OBP={has_obp}")
 
     # 1) batter_daily
+    def _i(v):
+        return None if pd.isna(v) else int(v)
     bd = [{
         "player_id": r.player_id, "game_date": r.game_date, "team": r.team,
-        "cum_pa": int(r.cum_pa), "cum_ab": int(r.cum_ab),
-        "cum_h": int(r.cum_h), "cum_hr": int(r.cum_hr),
+        "cum_pa": _i(r.cum_pa), "cum_ab": _i(r.cum_ab),
+        "cum_h": _i(r.cum_h), "cum_hr": _i(r.cum_hr),
+        "cum_bb": _i(getattr(r, "cum_bb", None)), "cum_hbp": _i(getattr(r, "cum_hbp", None)),
     } for r in daily.itertuples(index=False)]
     n_bd = _chunked_upsert(client, "batter_daily", bd, ON_CONFLICT["batter_daily"])
     print(f"  batter_daily upsert: {n_bd}행")
 
-    # 2) predictions (동결 prior로 매일 누적에 사후 적용 → 소급 재구성)
-    est = fit.estimate(pri, daily["cum_h"].values, daily["cum_ab"].values, ci=ci)
-    preds = [{
-        "pred_date": gd, "target_type": "batter_avg", "target_id": pid,
-        "point_est": round(float(pm), 5),
-        "ci_low": round(float(lo), 5), "ci_high": round(float(hi), 5),
-        "model_version": version,
-    } for gd, pid, pm, lo, hi in zip(
-        daily["game_date"], daily["player_id"],
-        est["post_mean"], est["ci_low"], est["ci_high"])]
+    # 2) predictions: 동결 prior로 사후 적용 (AVG + 가능하면 OBP)
+    def _preds(target, success, trials, prior, ver):
+        est = fit.estimate(prior, success, trials, ci=ci)
+        return [{
+            "pred_date": gd, "target_type": target, "target_id": pid,
+            "point_est": round(float(pm), 5),
+            "ci_low": round(float(lo), 5), "ci_high": round(float(hi), 5),
+            "model_version": ver,
+        } for gd, pid, pm, lo, hi in zip(
+            daily["game_date"], daily["player_id"],
+            est["post_mean"], est["ci_low"], est["ci_high"])]
+
+    preds = _preds("batter_avg", daily["cum_h"].values, daily["cum_ab"].values, pri, version)
+    if has_obp:
+        op = cfg["batter_obp_model"]["prior"]
+        obp_pri = BetaPrior(alpha=op["alpha"], beta=op["beta"])
+        onbase = (daily["cum_h"] + daily["cum_bb"] + daily["cum_hbp"]).values
+        opp = (daily["cum_ab"] + daily["cum_bb"] + daily["cum_hbp"]).values
+        preds += _preds("batter_obp", onbase, opp, obp_pri, cfg["batter_obp_model"]["model_version"])
     n_p = _chunked_upsert(client, "predictions", preds, ON_CONFLICT["predictions"])
     print(f"  predictions upsert: {n_p}행")
     return {"batter_daily": n_bd, "predictions": n_p}

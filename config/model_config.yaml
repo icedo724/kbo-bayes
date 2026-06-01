@@ -1,15 +1,15 @@
 model_version: batter-betabinom-mom-2025roster-v1
-frozen_at: '2026-05-31T15:36:17.365939+00:00'
-note: 2025 시즌 종료 누적 131명으로 MoM 추정한 league prior. MLE는 시즌초 퇴화로 미채택.
+frozen_at: '2026-06-01T09:31:53.467103+00:00'
+note: 2025 시즌 종료 누적 123명으로 MoM 추정한 league prior. MLE는 시즌초 퇴화로 미채택.
 batter_model:
   family: beta-binomial-conjugate
   prior_method: mom
-  prior_source: KBO 2025 season-end (131 players)
+  prior_source: KBO 2025 season-end (123 players)
   prior:
-    alpha: 20.639019899279063
-    beta: 60.71863117730587
-    mean: 0.2536825931693971
-    strength: 81.35765107658494
+    alpha: 19.85306278027725
+    beta: 58.466768012631974
+    mean: 0.25348704892854124
+    strength: 78.31983079290922
   credible_interval: 0.9
   posterior_rule: Beta(alpha+H, beta+AB-H)
 online_contract:
@@ -22,3 +22,17 @@ online_contract:
   daily_inputs:
   - cum_ab
   - cum_h
+  - cum_bb
+  - cum_hbp
+batter_obp_model:
+  model_version: obp-betabinom-mom-2025roster-v1
+  family: beta-binomial-conjugate
+  prior_method: mom
+  prior_source: KBO 2025 season-end (123 players)
+  prior:
+    alpha: 26.1027925645487
+    beta: 51.54128249934421
+    mean: 0.3361852471430543
+    strength: 77.64407506389291
+  credible_interval: 0.9
+  posterior_rule: Beta(alpha+onbase, beta+opp-onbase); onbase=H+BB+HBP, opp=AB+BB+HBP

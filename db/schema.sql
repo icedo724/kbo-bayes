@@ -9,6 +9,8 @@ create table if not exists batter_daily (
   cum_ab      int,
   cum_h       int,
   cum_hr      int,
+  cum_bb      int,
+  cum_hbp     int,
   primary key (player_id, game_date)
 );
 
