@@ -9,10 +9,10 @@ export default function CompareTable({ items, onRemove }) {
   if (!items.length) return null;
   const metrics = [
     ["팀", (r) => r.team],
-    ["AB", (r) => r.ab],
+    ["타수", (r) => r.ab],
     ["관측 타율", (r) => fmt(r.obs)],
     ["베이지안", (r) => fmt(r.est)],
-    ["90% CI", (r) => `${fmt(r.ci_low)}–${fmt(r.ci_high)}`],
+    ["90% 신뢰구간", (r) => `${fmt(r.ci_low)}–${fmt(r.ci_high)}`],
     ["보정", (r) => (r.shrink == null ? "-" : (r.shrink > 0 ? "+" : "") + r.shrink.toFixed(3))],
   ];
   return (

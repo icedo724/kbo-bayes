@@ -134,7 +134,7 @@ text(s, 0.9, 6.2, 11.5, 0.8,
 s = slide(WHITE)
 text(s, 0.7, 0.5, 12, 1.0, [("시즌 초 타율은 믿을 수 없다", 36, NAVY, True)])
 text(s, 0.7, 1.6, 5.5, 4.5,
-     [("20타석에서 8안타를 친 선수의 타율은 .400.", 18, INK, False),
+     [("20타수에서 8안타를 친 선수의 타율은 .400.", 18, INK, False),
       ("하지만 이 선수가 진짜 4할 타자일 가능성은 낮다 —", 18, INK, False),
       ("대부분 시간이 지나면 평균으로 회귀한다.", 18, INK, False),
       ("", 8, INK, False),
@@ -144,7 +144,7 @@ text(s, 0.7, 1.6, 5.5, 4.5,
       ("→ 표본 크기를 반영해 '실력'을 추정해야 한다.", 18, GOLD, True)], line=1.35)
 card(s, 6.6, 1.8, 3.0, 1.7,
      [("관측 타율", 13, MUTE, False), (".400", 40, RGBColor(0xCF, 0x24, 0x2E), True),
-      ("20타석 8안타", 12, MUTE, False)], fill=LIGHT)
+      ("20타수 8안타", 12, MUTE, False)], fill=LIGHT)
 card(s, 9.9, 1.8, 3.0, 1.7,
      [("리그 평균", 13, MUTE, False), (".254", 40, NAVY, True),
       ("진짜 실력은 이 사이 어딘가", 12, MUTE, False)], fill=LIGHT)
@@ -176,9 +176,9 @@ for i, (h, b, col) in enumerate(steps):
 s = slide(WHITE)
 text(s, 0.7, 0.45, 12, 0.9, [("결과 ① 표본이 적을수록 강하게 보정된다", 32, NAVY, True)])
 stat_row(s, [
-    (".400→.262", "5타석 신인 (−.138)", RGBColor(0xCF, 0x24, 0x2E)),
-    (".000→.248", "2타석 무안타 (+.248)", NAVY),
-    (".274→.268", "223타석 주전 (−.006)", RGBColor(0x1A, 0x7F, 0x37)),
+    (".400→.262", "5타수 신인 (−.138)", RGBColor(0xCF, 0x24, 0x2E)),
+    (".000→.248", "2타수 무안타 (+.248)", NAVY),
+    (".274→.268", "223타수 주전 (−.006)", RGBColor(0x1A, 0x7F, 0x37)),
 ], y=1.35)
 pic_centered(s, "shrinkage.png", top=2.55, height=4.35)
 

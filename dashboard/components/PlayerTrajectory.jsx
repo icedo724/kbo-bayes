@@ -26,11 +26,11 @@ function TT({ active, payload, label }) {
         fontSize: 12,
       }}
     >
-      <div style={{ fontWeight: 600 }}>{label} (AB {d.ab})</div>
+      <div style={{ fontWeight: 600 }}>{label} (타수 {d.ab})</div>
       <div>관측 타율: {fmt(d.obs)}</div>
       <div style={{ color: "#2f81f7" }}>베이지안: {fmt(d.est)}</div>
       <div style={{ color: "#6b7280" }}>
-        90% CI: {fmt(d.ci_low)} – {fmt(d.ci_high)}
+        90% 신뢰구간: {fmt(d.ci_low)} – {fmt(d.ci_high)}
       </div>
     </div>
   );

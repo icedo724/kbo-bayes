@@ -150,9 +150,9 @@ export default function TeamPage({ params }) {
       </div>
 
       <div className="panel">
-        <h2>{name} 타자 Shrinkage · {METRIC_LABEL[metric]}</h2>
+        <h2>{name} 타자 수축 보정 · {METRIC_LABEL[metric]}</h2>
         <p className="sub">
-          대각선에서 파란 prior 선 쪽으로 당겨질수록 평균회귀 보정이 큽니다(저타석=빨강).
+          대각선에서 파란 리그 평균 선 쪽으로 당겨질수록 평균회귀 보정이 큽니다(타수 적을수록 빨강).
         </p>
         <ShrinkageScatter rows={displayed} priorMean={PRIOR[metric]} metricLabel={METRIC_LABEL[metric]} />
       </div>
@@ -169,7 +169,7 @@ export default function TeamPage({ params }) {
               style={{ textDecoration: "none" }}
             >
               <div className="m-label">
-                {r.name} · AB {r.ab}
+                {r.name} · 타수 {r.ab}
               </div>
               <div className="m-value" style={{ fontSize: 18 }}>
                 {r.obs?.toFixed(3)} → <span style={{ color: "#2f81f7" }}>{r.est.toFixed(3)}</span>

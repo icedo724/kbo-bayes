@@ -166,8 +166,8 @@ export default function LeaguePage() {
       <div className="header">
         <h1>리그 타자 분석</h1>
         <p>
-          시즌 초 관측 타율의 평균회귀를 Beta-Binomial 켤레 모델의 shrinkage로 보정합니다.
-          표본이 적을수록 리그 사전평균으로 강하게 수축하고, 타석이 쌓일수록 관측값으로 수렴합니다.
+          시즌 초 관측 타율의 평균회귀를 베타-이항 베이지안 모델로 보정합니다.
+          표본이 적을수록 리그 평균으로 강하게 수축하고, 타석이 쌓일수록 관측값으로 수렴합니다.
         </p>
         <div className="meta">
           <span>
@@ -177,9 +177,9 @@ export default function LeaguePage() {
             표시 <b>{stat.n}</b>명
           </span>
           <span>
-            저타석(AB&lt;50) <b>{stat.low}</b>명 · 평균 보정폭 <b>{stat.avgShrinkLow.toFixed(3)}</b>
+            타수 50 미만 <b>{stat.low}</b>명 · 평균 보정폭 <b>{stat.avgShrinkLow.toFixed(3)}</b>
           </span>
-          <span className="tag">{modelVersion}</span>
+          <span className="tag">베타-이항 모델 · 2025 사전분포</span>
         </div>
       </div>
 
@@ -212,15 +212,15 @@ export default function LeaguePage() {
           </button>
         ))}
         <span style={{ color: "var(--muted)", fontSize: 13 }}>
-          지표 선택 — 출루율(OBP)은 볼넷·사구 포함, 득점과의 상관이 더 높다
+          지표 선택 — 출루율은 볼넷·사구를 포함해 득점과의 상관이 더 높다
         </span>
       </div>
 
       <div className="panel">
-        <h2>Shrinkage 한눈에 보기 · {METRIC_LABEL[metric]}</h2>
+        <h2>수축 보정 한눈에 보기 · {METRIC_LABEL[metric]}</h2>
         <p className="sub">
-          대각선(점선)은 보정이 없을 때의 위치(추정=관측). 점이 대각선에서 파란 prior 선 쪽으로
-          당겨질수록 보정이 크며, 타석이 적은(빨강) 선수일수록 강하게 수축됩니다.
+          대각선(점선)은 보정이 없을 때의 위치(추정=관측). 점이 대각선에서 파란 리그 평균 선 쪽으로
+          당겨질수록 보정이 크며, 타수가 적은(빨강) 선수일수록 강하게 수축됩니다.
         </p>
         <ShrinkageScatter rows={displayed} priorMean={PRIOR[metric]} metricLabel={METRIC_LABEL[metric]} />
       </div>
@@ -257,11 +257,11 @@ export default function LeaguePage() {
 
       {calib && (
         <div className="panel">
-          <h2>모델 신뢰도 (Calibration)</h2>
+          <h2>모델 신뢰도</h2>
           <p className="sub">
-            완료 시즌 {calib.seasons?.[0]}–{calib.seasons?.[calib.seasons.length - 1]} walk-forward
-            예측을 모아, 예측 타율 구간별로 실제 잔여 타율과 비교(reliability diagram). 베이지안이
-            대각선에 더 가깝다 = 더 잘 보정됨.
+            완료 시즌 {calib.seasons?.[0]}–{calib.seasons?.[calib.seasons.length - 1]}의 시점별
+            예측을 모아, 예측 타율 구간별로 실제 잔여 타율과 비교합니다. 점이 대각선에 가까울수록
+            예측이 실제와 일치 — 베이지안이 베이스라인보다 대각선에 더 가깝습니다.
           </p>
           <CalibrationChart bayes={calib.bayes} baseline={calib.baseline} />
         </div>
@@ -270,7 +270,7 @@ export default function LeaguePage() {
       <div className="panel">
         <h2>가을야구 진출 확률 {playoff.date ? `(${playoff.date})` : ""}</h2>
         <p className="sub">
-          잔여 경기 몬테카를로 시뮬레이션(2만 회). 팀 승률도 Beta-Binomial로 .500 쪽 보정.
+          잔여 경기 몬테카를로 시뮬레이션(2만 회). 팀 승률도 베타-이항으로 .500 쪽 보정.
         </p>
         <PlayoffOdds rows={playoff.rows} />
       </div>

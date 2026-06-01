@@ -69,7 +69,7 @@ export default function PlayerPage({ params }) {
         <>
           <div className="metric-row" style={{ marginTop: 16 }}>
             <div className="metric">
-              <div className="m-label">타석 AB</div>
+              <div className="m-label">타수</div>
               <div className="m-value">{cur.ab}</div>
             </div>
             <div className="metric">
@@ -81,7 +81,7 @@ export default function PlayerPage({ params }) {
               <div className="m-value" style={{ color: "#2f81f7" }}>{cur.est.toFixed(3)}</div>
             </div>
             <div className="metric">
-              <div className="m-label">타율 90% CI</div>
+              <div className="m-label">타율 90% 신뢰구간</div>
               <div className="m-value" style={{ fontSize: 18 }}>
                 {cur.ci_low.toFixed(3)}–{cur.ci_high.toFixed(3)}
               </div>
@@ -98,7 +98,7 @@ export default function PlayerPage({ params }) {
                 <div className="m-value" style={{ color: "#1a7f37" }}>{cur.obp_est.toFixed(3)}</div>
               </div>
               <div className="metric">
-                <div className="m-label">출루율 90% CI</div>
+                <div className="m-label">출루율 90% 신뢰구간</div>
                 <div className="m-value" style={{ fontSize: 18 }}>
                   {cur.obp_ci_low.toFixed(3)}–{cur.obp_ci_high.toFixed(3)}
                 </div>

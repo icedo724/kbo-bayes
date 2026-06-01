@@ -23,7 +23,7 @@ function TT({ active, payload }) {
       padding: "8px 10px", fontSize: 12 }}>
       <div>예측 {fmt(d.pred)}</div>
       <div>실제 {fmt(d.obs)}</div>
-      <div style={{ color: "#6b7280" }}>n={d.n?.toLocaleString?.() ?? d.n} 타석</div>
+      <div style={{ color: "#6b7280" }}>n={d.n?.toLocaleString?.() ?? d.n} 타수</div>
     </div>
   );
 }

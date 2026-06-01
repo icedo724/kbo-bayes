@@ -9,10 +9,10 @@ const fmt = (v, d = 3) => (v == null ? "-" : Number(v).toFixed(d));
 const COLS = [
   { key: "name", label: "선수", l: true },
   { key: "team", label: "팀", l: true },
-  { key: "ab", label: "AB" },
+  { key: "ab", label: "타수" },
   { key: "obs", label: "관측" },
   { key: "est", label: "베이지안" },
-  { key: "ci", label: "90% CI" },
+  { key: "ci", label: "90% 구간" },
   { key: "shrink", label: "보정" },
 ];
 

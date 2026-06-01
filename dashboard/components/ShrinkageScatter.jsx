@@ -31,7 +31,7 @@ function Dot({ active, payload }) {
       <div style={{ fontWeight: 600, marginBottom: 4 }}>
         {d.name} <span style={{ color: "#6b7280" }}>({d.team})</span>
       </div>
-      <div>타석 AB: {d.ab}</div>
+      <div>타수: {d.ab}</div>
       <div>관측: {fmt(d.obs)}</div>
       <div style={{ color: "#2f81f7" }}>베이지안: {fmt(d.est)}</div>
     </div>
@@ -58,7 +58,7 @@ export default function ShrinkageScatter({ rows, priorMean, metricLabel = "타�
             name={`관측 ${metricLabel}`}
             domain={[0, 0.5]}
             tick={{ fill: "#6b7280", fontSize: 12 }}
-            label={{ value: `관측 ${metricLabel} (raw)`, position: "bottom", fill: "#6b7280", offset: 10 }}
+            label={{ value: `관측 ${metricLabel}`, position: "bottom", fill: "#6b7280", offset: 10 }}
           />
           <YAxis
             type="number"
@@ -89,7 +89,7 @@ export default function ShrinkageScatter({ rows, priorMean, metricLabel = "타�
             y={priorMean}
             stroke="#2f81f7"
             strokeDasharray="2 2"
-            label={{ value: `prior ${priorMean.toFixed(3)}`, fill: "#2f81f7", fontSize: 11 }}
+            label={{ value: `리그 평균 ${priorMean.toFixed(3)}`, fill: "#2f81f7", fontSize: 11 }}
           />
           <Tooltip content={<Dot />} />
           <Scatter data={data} fillOpacity={0.85}>
@@ -100,9 +100,9 @@ export default function ShrinkageScatter({ rows, priorMean, metricLabel = "타�
         </ScatterChart>
       </ResponsiveContainer>
       <div style={{ textAlign: "center", fontSize: 12, color: "#6b7280", marginTop: 4 }}>
-        <span style={{ color: "#f85149" }}>●</span> AB&lt;50&nbsp;&nbsp;
+        <span style={{ color: "#f85149" }}>●</span> 타수&lt;50&nbsp;&nbsp;
         <span style={{ color: "#d29922" }}>●</span> 50–120&nbsp;&nbsp;
-        <span style={{ color: "#3fb950" }}>●</span> AB≥120 &nbsp; · 점이 대각선에서 prior선 쪽으로
+        <span style={{ color: "#3fb950" }}>●</span> 타수≥120 &nbsp; · 점이 대각선에서 리그 평균 선 쪽으로
         당겨질수록 보정이 크다
       </div>
     </div>
