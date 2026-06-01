@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { PALETTE } from "@/lib/colors";
 
 const fmt = (v, d = 3) => (v == null ? "-" : Number(v).toFixed(d));
@@ -69,7 +70,15 @@ export default function EstimatesTable({ rows, selectedIds, onToggle }) {
                     <span className="dot" style={{ background: PALETTE[idx % PALETTE.length] }} />
                   ) : null}
                 </td>
-                <td className="l">{r.name}</td>
+                <td className="l">
+                  <Link
+                    href={`/player/${r.player_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ color: "var(--text)" }}
+                  >
+                    {r.name}
+                  </Link>
+                </td>
                 <td className="l muted">{r.team}</td>
                 <td>{r.ab}</td>
                 <td className="muted">{fmt(r.obs)}</td>

@@ -67,6 +67,18 @@ export async function getEstimates(date) {
   return { rows, modelVersion };
 }
 
+/** 선수 메타(이름/팀/포지션) — players 테이블 */
+export async function getPlayerMeta(playerId) {
+  const data = must(
+    await supabase
+      .from("players")
+      .select("player_id, name, team, pos")
+      .eq("player_id", playerId)
+      .limit(1)
+  );
+  return data?.[0] ?? null;
+}
+
 /** 한 선수의 시즌 궤적 (날짜별 관측 vs 추정 + CI) */
 export async function getTrajectory(playerId) {
   const [preds, daily] = await Promise.all([
