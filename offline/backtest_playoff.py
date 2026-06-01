@@ -55,9 +55,30 @@ def run(season: int = 2025, as_of_dates=None, final_date=None):
     wins = sum(1 for m, b in zip(model_b, base_b) if m < b)
     print(f"\n평균 Brier — 모델 {np.mean(model_b):.4f} vs 베이스라인 {np.mean(base_b):.4f}")
     print(f"모델이 베이스라인을 이긴 시점: {wins}/{n}")
-    if wins < n:
-        print("[주의] 일부 시점에서 베이스라인을 못 이김 — 결과를 그대로 보고함.")
+    return {"season": season, "n": n, "wins": wins,
+            "model": float(np.mean(model_b)), "base": float(np.mean(base_b))}
+
+
+def run_all(seasons=(2021, 2022, 2023, 2024, 2025)):
+    rows = []
+    for s in seasons:
+        print(f"\n########## {s} ##########")
+        try:
+            rows.append(run(s))
+        except Exception as e:
+            print(f"  skip {s}: {repr(e)[:60]}")
+    n = sum(r["n"] for r in rows)
+    w = sum(r["wins"] for r in rows)
+    print("\n===== 다년 종합 =====")
+    for r in rows:
+        print(f"  {r['season']}: 모델이 {r['wins']}/{r['n']} 시점 우월 "
+              f"(Brier 모델 {r['model']:.4f} vs 베이스 {r['base']:.4f})")
+    print(f"전체: 모델이 {w}/{n} 시점에서 베이스라인보다 Brier 낮음")
 
 
 if __name__ == "__main__":
-    run()
+    import sys
+    if "--all" in sys.argv:
+        run_all()
+    else:
+        run()

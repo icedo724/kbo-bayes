@@ -7,6 +7,9 @@ on:
     - cron: "0 20 * * *"
   workflow_dispatch: {}   # 수동 실행 허용
 
+permissions:
+  contents: write   # heartbeat 커밋용
+
 concurrency:
   group: daily-update
   cancel-in-progress: false
@@ -14,7 +17,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,3 +32,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python -m online.daily_update
+      # heartbeat: 매일 커밋을 남겨 60일 무활동 시 cron 자동 비활성화를 방지
+      - name: heartbeat commit
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/last_run.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/last_run.txt
+          git commit -m "chore: daily heartbeat [skip ci]" || echo "no change"
+          git push

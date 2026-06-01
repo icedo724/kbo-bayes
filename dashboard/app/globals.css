@@ -137,6 +137,48 @@ tbody tr.active {
   overflow: auto;
 }
 
+/* ===== 모바일 반응형 ===== */
+@media (max-width: 640px) {
+  .wrap {
+    padding: 16px 14px 60px;
+  }
+  .header h1 {
+    font-size: 22px;
+  }
+  .nav-inner {
+    gap: 10px 14px;
+    padding: 8px 14px;
+  }
+  .nav-teams {
+    gap: 2px;
+  }
+  .nav-emblem img {
+    width: 22px;
+    height: 22px;
+  }
+  .panel {
+    padding: 15px;
+  }
+  .panel h2 {
+    font-size: 16px;
+  }
+  .metric .m-value {
+    font-size: 18px;
+  }
+  table {
+    font-size: 12px;
+  }
+  th,
+  td {
+    padding: 7px 7px;
+  }
+  /* 넓은 표는 가로 스크롤 */
+  .panel > table,
+  .scroll {
+    overflow-x: auto;
+  }
+}
+
 .loading {
   color: var(--muted);
   padding: 40px;

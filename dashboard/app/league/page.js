@@ -17,6 +17,7 @@ import CompareTable from "@/components/CompareTable";
 import FilterBar from "@/components/FilterBar";
 import PlayoffOdds from "@/components/PlayoffOdds";
 import Standings from "@/components/Standings";
+import CalibrationChart from "@/components/CalibrationChart";
 
 const PRIOR = { avg: 0.254, obp: 0.336 };
 const METRIC_LABEL = { avg: "타율", obp: "출루율" };
@@ -37,6 +38,11 @@ export default function LeaguePage() {
 
   const [compareIds, setCompareIds] = useState([]);
   const [trajById, setTrajById] = useState({});
+  const [calib, setCalib] = useState(null);
+
+  useEffect(() => {
+    fetch("/calibration.json").then((r) => r.json()).then(setCalib).catch(() => {});
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -248,6 +254,18 @@ export default function LeaguePage() {
           </>
         )}
       </div>
+
+      {calib && (
+        <div className="panel">
+          <h2>모델 신뢰도 (Calibration)</h2>
+          <p className="sub">
+            완료 시즌 {calib.seasons?.[0]}–{calib.seasons?.[calib.seasons.length - 1]} walk-forward
+            예측을 모아, 예측 타율 구간별로 실제 잔여 타율과 비교(reliability diagram). 베이지안이
+            대각선에 더 가깝다 = 더 잘 보정됨.
+          </p>
+          <CalibrationChart bayes={calib.bayes} baseline={calib.baseline} />
+        </div>
+      )}
 
       <div className="panel">
         <h2>가을야구 진출 확률 {playoff.date ? `(${playoff.date})` : ""}</h2>

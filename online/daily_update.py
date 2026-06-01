@@ -112,6 +112,13 @@ def daily_update(game_date: str | None = None, season: int | None = None):
     n_po = store_playoff(client, std_rows, game_date)
     print(f"  playoff_prob upsert: {n_po}행")
 
+    # 일정·결과 재구성 (매치업 + 승패). 실패해도 나머지 갱신은 유지.
+    try:
+        from online.reconstruct_games import reconstruct
+        reconstruct(season)
+    except Exception as e:
+        print(f"  reconstruct_games skip: {repr(e)[:80]}")
+
     print("[online] 완료.")
     return {**res, "standings": n_std, "playoff": n_po}
 
