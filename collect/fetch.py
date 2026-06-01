@@ -211,6 +211,14 @@ def fetch_team_roster(team_code: str, cli: KBOClient | None = None,
     return out
 
 
+def fetch_player_name(player_id: str) -> str | None:
+    """선수 상세 페이지에서 이름 추출(로스터에서 빠진 선수 보강용)."""
+    cli = KBOClient()
+    html = cli.get(f"/Record/Player/HitterDetail/Daily.aspx?playerId={player_id}")
+    m = re.search(r'id="[^"]*playerProfile_lblName"[^>]*>([^<]+)<', html)
+    return m.group(1).strip() if m else None
+
+
 def collect_all_batter_ids() -> list[dict]:
     """10개 팀 활성 로스터의 전체 타자(저타석 포함)를 모은다. player_id 중복 제거."""
     cli = KBOClient()

@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getPlayoffProbs, getStandings } from "@/lib/api";
+import { getPlayoffProbs, getSchedule, getStandings } from "@/lib/api";
 import { codeOf, emblemUrl, teamColor } from "@/lib/teams";
+import ScheduleList from "@/components/ScheduleList";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(null);
   const [teams, setTeams] = useState([]);
+  const [recent, setRecent] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
-        const [st, po] = await Promise.all([getStandings(), getPlayoffProbs()]);
+        const [st, po, sched] = await Promise.all([
+          getStandings(),
+          getPlayoffProbs(),
+          getSchedule(80).catch(() => []),
+        ]);
         const probByTeam = Object.fromEntries(po.rows.map((r) => [r.team, r.prob]));
         const rows = st.rows.map((r, i) => ({
           ...r,
@@ -23,6 +29,11 @@ export default function Home() {
         }));
         setTeams(rows);
         setDate(st.date);
+        // 가장 최근 경기일의 경기만
+        if (sched.length) {
+          const latest = sched[0].game_date;
+          setRecent(sched.filter((g) => g.game_date === latest));
+        }
       } catch (e) {
         // noop
       } finally {
@@ -46,6 +57,14 @@ export default function Home() {
           <Link href="/league">리그 전체 분석 →</Link>
         </div>
       </div>
+
+      {recent.length > 0 && (
+        <div className="panel">
+          <h2>최근 경기 ({recent[0].game_date})</h2>
+          <p className="sub">매치업·승패는 합법 데이터로 재구성(스코어 없음). 팀 클릭 시 전력 분석.</p>
+          <ScheduleList games={recent} />
+        </div>
+      )}
 
       <div className="panel">
         <h2>팀 선택</h2>

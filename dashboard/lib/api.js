@@ -116,6 +116,18 @@ export async function getTrajectory(playerId) {
     .filter(Boolean);
 }
 
+/** 경기 일정·결과 (최근순). 매치업 + 승자(스코어/홈원정 없음 — 재구성 데이터) */
+export async function getSchedule(maxRows = 400) {
+  const rows = must(
+    await supabase
+      .from("games")
+      .select("game_id, game_date, home_team, away_team, winner, status")
+      .order("game_date", { ascending: false })
+      .limit(maxRows)
+  );
+  return rows;
+}
+
 /** 가장 최근 진출 확률 (몬테카를로) */
 export async function getPlayoffProbs() {
   const latest = must(

@@ -46,6 +46,17 @@ KBO 데이터를 매일 자동 수집해 두 개의 베이지안 모델을 운�
 
 검증 과정에서 prior 추정법으로 MLE는 시즌 초 소표본에서 `α+β`가 발산해 모든 선수를 평균으로 과수축시켰고, method of moments는 전 구간 안정적이었다. 그래서 운영에는 mom을 동결했다.
 
+## 대시보드 (포털형)
+
+- `/` 홈 — 팀 카드(순위·진출%) + 최근 경기
+- `/team/[code]` 팀 전력 분석 — 팀 타자 shrinkage·추정·지표
+- `/player/[id]` 선수 상세 — 시즌 궤적·지표
+- `/league` 리그 전체 분석 — 필터(팀/포지션/검색) + 선수 비교 + 산점도 + 진출확률 + 순위
+- `/schedule` 일정·결과 — 매치업 + 승패
+
+경기 일정은 KBO 공식 API가 robots.txt(`/ws/`)로 차단되어, 합법 수집 데이터(선수 게임로그의
+상대팀 + 팀 순위 일별 변화)로 **매치업·승패를 재구성**한다(스코어·홈/원정 없음).
+
 ## 데이터 소스
 
 KBO 공식 기록실(koreabaseball.com)을 사용한다. `robots.txt` 허용 경로만, `requests` + `pandas.read_html`로 수집한다(Selenium 미사용). KBO 기록 페이지는 ASP.NET full-postback이라 hidden+select 필드를 그대로 되돌려주고 `__EVENTTARGET`만 바꿔 POST하는 방식으로 필터/페이지를 전환한다.

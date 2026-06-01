@@ -326,3 +326,45 @@ tbody tr.active {
   font-size: 13px;
   color: var(--muted);
 }
+
+/* ===== 일정·결과 ===== */
+.sched-date {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.sched-games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.game-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.gc-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  min-width: 0;
+}
+.gc-team img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.gc-mid {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
