@@ -24,7 +24,7 @@ export default function FilterBar({ teams, team, setTeam, pos, setPos, q, setQ, 
         onChange={(e) => setQ(e.target.value)}
         style={{ flex: "1 1 160px", minWidth: 140 }}
       />
-      <span style={{ color: "#8b949e", fontSize: 13 }}>{count}명</span>
+      <span style={{ color: "var(--muted)", fontSize: 13 }}>{count}명</span>
     </div>
   );
 }

@@ -89,9 +89,7 @@ export default function TeamPage({ params }) {
       <div className="team-header" style={{ marginTop: 10 }}>
         <img src={emblemUrl(code)} alt={name} />
         <div>
-          <h1 style={{ margin: 0, color: teamColor(code) === "#000000" ? "#e6edf3" : teamColor(code) }}>
-            {name}
-          </h1>
+          <h1 style={{ margin: 0, color: teamColor(code) }}>{name}</h1>
           <div className="muted" style={{ fontSize: 13 }}>
             타자 전력 분석 · 기준일 {date}
           </div>

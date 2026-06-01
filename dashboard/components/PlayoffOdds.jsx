@@ -20,7 +20,7 @@ export default function PlayoffOdds({ rows }) {
             style={{
               flex: 1,
               height: 14,
-              background: "#21262d",
+              background: "#eaecef",
               borderRadius: 7,
               overflow: "hidden",
             }}

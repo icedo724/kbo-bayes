@@ -19,8 +19,8 @@ function TT({ active, payload, label }) {
   return (
     <div
       style={{
-        background: "#0d1117",
-        border: "1px solid #30363d",
+        background: "#ffffff",
+        border: "1px solid #d6d9de",
         borderRadius: 8,
         padding: "8px 10px",
         fontSize: 12,
@@ -29,7 +29,7 @@ function TT({ active, payload, label }) {
       <div style={{ fontWeight: 600 }}>{label} (AB {d.ab})</div>
       <div>관측 타율: {fmt(d.obs)}</div>
       <div style={{ color: "#2f81f7" }}>베이지안: {fmt(d.est)}</div>
-      <div style={{ color: "#8b949e" }}>
+      <div style={{ color: "#6b7280" }}>
         90% CI: {fmt(d.ci_low)} – {fmt(d.ci_high)}
       </div>
     </div>
@@ -42,11 +42,11 @@ export default function PlayerTrajectory({ data, name }) {
     <div style={{ width: "100%", height: 340 }}>
       <ResponsiveContainer>
         <ComposedChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-          <CartesianGrid stroke="#21262d" />
-          <XAxis dataKey="date" tick={{ fill: "#8b949e", fontSize: 11 }} minTickGap={24} />
+          <CartesianGrid stroke="#eaecef" />
+          <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 11 }} minTickGap={24} />
           <YAxis
             domain={[0.1, 0.45]}
-            tick={{ fill: "#8b949e", fontSize: 11 }}
+            tick={{ fill: "#6b7280", fontSize: 11 }}
             tickFormatter={(v) => v.toFixed(2)}
           />
           <Tooltip content={<TT />} />
@@ -61,7 +61,7 @@ export default function PlayerTrajectory({ data, name }) {
           {/* 관측 타율(노이즈) */}
           <Line
             dataKey="obs"
-            stroke="#8b949e"
+            stroke="#6b7280"
             dot={false}
             strokeWidth={1.5}
             name="관측 타율"
@@ -78,8 +78,8 @@ export default function PlayerTrajectory({ data, name }) {
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <div style={{ textAlign: "center", fontSize: 12, color: "#8b949e" }}>
-        <b style={{ color: "#e6edf3" }}>{name}</b> — 회색=관측 타율, 파랑=베이지안 추정,
+      <div style={{ textAlign: "center", fontSize: 12, color: "#6b7280" }}>
+        <b style={{ color: "var(--text)" }}>{name}</b> — 회색=관측 타율, 파랑=베이지안 추정,
         음영=90% 신뢰구간 (타석이 쌓일수록 수렴·구간 축소)
       </div>
     </div>

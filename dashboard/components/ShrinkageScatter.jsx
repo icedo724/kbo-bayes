@@ -21,15 +21,15 @@ function Dot({ active, payload }) {
   return (
     <div
       style={{
-        background: "#0d1117",
-        border: "1px solid #30363d",
+        background: "#ffffff",
+        border: "1px solid #d6d9de",
         borderRadius: 8,
         padding: "8px 10px",
         fontSize: 12,
       }}
     >
       <div style={{ fontWeight: 600, marginBottom: 4 }}>
-        {d.name} <span style={{ color: "#8b949e" }}>({d.team})</span>
+        {d.name} <span style={{ color: "#6b7280" }}>({d.team})</span>
       </div>
       <div>타석 AB: {d.ab}</div>
       <div>관측 타율: {fmt(d.obs)}</div>
@@ -51,26 +51,26 @@ export default function ShrinkageScatter({ rows, priorMean }) {
     <div style={{ width: "100%", height: 420 }}>
       <ResponsiveContainer>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 40, left: 10 }}>
-          <CartesianGrid stroke="#21262d" />
+          <CartesianGrid stroke="#eaecef" />
           <XAxis
             type="number"
             dataKey="obs"
             name="관측 타율"
             domain={[0, 0.5]}
-            tick={{ fill: "#8b949e", fontSize: 12 }}
-            label={{ value: "관측 타율 (raw)", position: "bottom", fill: "#8b949e", offset: 10 }}
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            label={{ value: "관측 타율 (raw)", position: "bottom", fill: "#6b7280", offset: 10 }}
           />
           <YAxis
             type="number"
             dataKey="est"
             name="베이지안 추정"
             domain={[0, 0.5]}
-            tick={{ fill: "#8b949e", fontSize: 12 }}
+            tick={{ fill: "#6b7280", fontSize: 12 }}
             label={{
               value: "베이지안 추정",
               angle: -90,
               position: "insideLeft",
-              fill: "#8b949e",
+              fill: "#6b7280",
             }}
           />
           <ZAxis type="number" dataKey="ab" range={[20, 220]} name="AB" />
@@ -80,7 +80,7 @@ export default function ShrinkageScatter({ rows, priorMean }) {
               { x: 0, y: 0 },
               { x: 0.5, y: 0.5 },
             ]}
-            stroke="#8b949e"
+            stroke="#6b7280"
             strokeDasharray="4 4"
             ifOverflow="extendDomain"
           />
@@ -99,7 +99,7 @@ export default function ShrinkageScatter({ rows, priorMean }) {
           </Scatter>
         </ScatterChart>
       </ResponsiveContainer>
-      <div style={{ textAlign: "center", fontSize: 12, color: "#8b949e", marginTop: 4 }}>
+      <div style={{ textAlign: "center", fontSize: 12, color: "#6b7280", marginTop: 4 }}>
         <span style={{ color: "#f85149" }}>●</span> AB&lt;50&nbsp;&nbsp;
         <span style={{ color: "#d29922" }}>●</span> 50–120&nbsp;&nbsp;
         <span style={{ color: "#3fb950" }}>●</span> AB≥120 &nbsp; · 점이 대각선에서 prior선 쪽으로

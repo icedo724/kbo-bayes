@@ -18,17 +18,17 @@ export default function CompareChart({ data, items }) {
     <div style={{ width: "100%", height: 360 }}>
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-          <CartesianGrid stroke="#21262d" />
-          <XAxis dataKey="date" tick={{ fill: "#8b949e", fontSize: 11 }} minTickGap={24} />
+          <CartesianGrid stroke="#eaecef" />
+          <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 11 }} minTickGap={24} />
           <YAxis
             domain={[0.15, 0.4]}
-            tick={{ fill: "#8b949e", fontSize: 11 }}
+            tick={{ fill: "#6b7280", fontSize: 11 }}
             tickFormatter={(v) => v.toFixed(2)}
           />
           <Tooltip
             contentStyle={{
-              background: "#0d1117",
-              border: "1px solid #30363d",
+              background: "#ffffff",
+              border: "1px solid #d6d9de",
               borderRadius: 8,
               fontSize: 12,
             }}
@@ -49,7 +49,7 @@ export default function CompareChart({ data, items }) {
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <div style={{ textAlign: "center", fontSize: 12, color: "#8b949e" }}>
+      <div style={{ textAlign: "center", fontSize: 12, color: "#6b7280" }}>
         선수별 베이지안 추정 타율 궤적 비교
       </div>
     </div>

@@ -96,7 +96,7 @@ export default function Home() {
         )}
       </div>
 
-      <div style={{ marginTop: 28, fontSize: 12, color: "#8b949e", textAlign: "center" }}>
+      <div style={{ marginTop: 28, fontSize: 12, color: "var(--muted)", textAlign: "center" }}>
         데이터: KBO 공식 기록실 · 매일 GitHub Actions로 자동 수집/갱신 ·{" "}
         <a href="https://github.com/icedo724/kbo-bayes">소스코드</a>
       </div>
