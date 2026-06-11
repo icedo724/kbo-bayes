@@ -30,7 +30,7 @@ function TT({ active, payload, label }) {
       <div>관측 타율: {fmt(d.obs)}</div>
       <div style={{ color: "#2f81f7" }}>베이지안: {fmt(d.est)}</div>
       <div style={{ color: "#6b7280" }}>
-        90% 신뢰구간: {fmt(d.ci_low)} – {fmt(d.ci_high)}
+        90% 신용구간: {fmt(d.ci_low)} – {fmt(d.ci_high)}
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ export default function PlayerTrajectory({ data, name }) {
             tickFormatter={(v) => v.toFixed(2)}
           />
           <Tooltip content={<TT />} />
-          {/* 90% 신뢰구간 밴드 */}
+          {/* 90% 신용구간 밴드 */}
           <Area
             dataKey="band"
             stroke="none"
@@ -80,7 +80,7 @@ export default function PlayerTrajectory({ data, name }) {
       </ResponsiveContainer>
       <div style={{ textAlign: "center", fontSize: 12, color: "#6b7280" }}>
         <b style={{ color: "var(--text)" }}>{name}</b> — 회색=관측 타율, 파랑=베이지안 추정,
-        음영=90% 신뢰구간 (타석이 쌓일수록 수렴·구간 축소)
+        음영=90% 신용구간 (타석이 쌓일수록 수렴·구간 축소)
       </div>
     </div>
   );

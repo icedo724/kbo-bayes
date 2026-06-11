@@ -81,7 +81,7 @@ export default function PlayerPage({ params }) {
               <div className="m-value" style={{ color: "#2f81f7" }}>{cur.est.toFixed(3)}</div>
             </div>
             <div className="metric">
-              <div className="m-label">타율 90% 신뢰구간</div>
+              <div className="m-label">타율 90% 신용구간</div>
               <div className="m-value" style={{ fontSize: 18 }}>
                 {cur.ci_low.toFixed(3)}–{cur.ci_high.toFixed(3)}
               </div>
@@ -98,7 +98,7 @@ export default function PlayerPage({ params }) {
                 <div className="m-value" style={{ color: "#1a7f37" }}>{cur.obp_est.toFixed(3)}</div>
               </div>
               <div className="metric">
-                <div className="m-label">출루율 90% 신뢰구간</div>
+                <div className="m-label">출루율 90% 신용구간</div>
                 <div className="m-value" style={{ fontSize: 18 }}>
                   {cur.obp_ci_low.toFixed(3)}–{cur.obp_ci_high.toFixed(3)}
                 </div>
@@ -110,7 +110,7 @@ export default function PlayerPage({ params }) {
 
       <div className="panel">
         <h2>시즌 궤적</h2>
-        <p className="sub">관측 타율(회색) vs 베이지안 추정(파랑) + 90% 신뢰구간. 타석이 쌓일수록 수렴.</p>
+        <p className="sub">관측 타율(회색) vs 베이지안 추정(파랑) + 90% 신용구간. 타석이 쌓일수록 수렴.</p>
         <PlayerTrajectory data={traj} name={name} />
       </div>
 

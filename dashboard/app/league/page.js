@@ -237,7 +237,7 @@ export default function LeaguePage() {
         <h2>{single ? "시즌 궤적" : "선수 비교"} · 타율</h2>
         {single ? (
           <>
-            <p className="sub">관측 타율 vs 베이지안 추정의 시간 변화와 90% 신뢰구간.</p>
+            <p className="sub">관측 타율 vs 베이지안 추정의 시간 변화와 90% 신용구간.</p>
             <PlayerTrajectory
               data={trajById[compareIds[0]] ?? []}
               name={idToName[compareIds[0]] ?? ""}

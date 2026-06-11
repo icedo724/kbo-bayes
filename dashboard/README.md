@@ -10,7 +10,7 @@ Supabase에 저장된 결과(`predictions` × `batter_daily` × `players`, `team
 - `app/page.js` — 메인 페이지(클라이언트 컴포넌트). 데이터 로드 + 레이아웃
 - `components/ShrinkageScatter.jsx` — 관측 타율 vs 베이지안 추정 산점도(보정 시각화)
 - `components/EstimatesTable.jsx` — 선수별 추정 테이블(정렬·선택)
-- `components/PlayerTrajectory.jsx` — 선택 선수의 시즌 궤적 + 90% 신뢰구간
+- `components/PlayerTrajectory.jsx` — 선택 선수의 시즌 궤적 + 90% 신용구간
 - `components/Standings.jsx` — 팀 순위
 - `lib/supabaseClient.js`, `lib/api.js` — Supabase 읽기 전용 클라이언트와 쿼리
 

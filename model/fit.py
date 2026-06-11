@@ -3,7 +3,7 @@ Beta-Binomial 켤레 사후분포 (닫힌형, MCMC 불필요).
 
     H ~ Binomial(AB, theta), theta ~ Beta(alpha, beta)
     theta | data ~ Beta(alpha + H, beta + AB - H)
-    점추정 = 사후 평균, 신뢰구간 = Beta 분위수.
+    점추정 = 사후 평균, 신용구간 = Beta 분위수.
 """
 from __future__ import annotations
 
@@ -24,12 +24,12 @@ def posterior_params(prior: BetaPrior, h, ab):
 
 
 def estimate(prior: BetaPrior, h, ab, ci: float = 0.90) -> pd.DataFrame:
-    """선수별 사후 점추정 + 신뢰구간 + shrinkage 진단.
+    """선수별 사후 점추정 + 신용구간 + shrinkage 진단.
 
     반환 컬럼:
         obs_avg   : 보정 없는 관측 타율 (= 베이스라인)
         post_mean : 베이지안 점추정 (사후 평균)
-        ci_low/ci_high : 사후 Beta 분위수 신뢰구간
+        ci_low/ci_high : 사후 Beta 분위수 신용구간
         shrink    : 관측 타율에서 사전 평균 쪽으로 당겨진 양 (obs_avg - post_mean)
     """
     h = np.asarray(h, float)
